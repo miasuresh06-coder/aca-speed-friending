@@ -3,405 +3,228 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ACA Speed Friending</title>
-
+<title>Speed Friending · ACA Cattolica</title>
+<link href="[fonts.googleapis.com](https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Serif+JP:wght@400;700&display=swap)" rel="stylesheet">
 <style>
-:root {
-  --navy: #123B68;
-  --cream: #FBF8F0;
-  --red: #C43D43;
-  --green: #287B5B;
-  --gold: #C6A45B;
-}
+  :root{
+    --navy:#14306e; --navy-dark:#0b1d47; --red:#c8102e; --gold:#d4a72c;
+    --paper:#faf7f0; --sakura:#f6c6d0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Noto Serif JP',serif; color:var(--navy-dark); min-height:100vh;
+    background-color:var(--paper);
+    /* seigaiha wave pattern */
+    background-image:
+      radial-gradient(circle at 100% 150%, var(--paper) 24%, #e6ebf5 25%, #e6ebf5 28%, var(--paper) 29%, var(--paper) 36%, #e6ebf5 37%, #e6ebf5 40%, transparent 41%),
+      radial-gradient(circle at 0 150%, var(--paper) 24%, #e6ebf5 25%, #e6ebf5 28%, var(--paper) 29%, var(--paper) 36%, #e6ebf5 37%, #e6ebf5 40%, transparent 41%),
+      radial-gradient(circle at 50% 100%, #e6ebf5 10%, var(--paper) 11%, var(--paper) 23%, #e6ebf5 24%, #e6ebf5 30%, var(--paper) 31%, var(--paper) 43%, #e6ebf5 44%, #e6ebf5 50%, transparent 51%);
+    background-size:80px 40px;
+    display:flex; flex-direction:column; align-items:center; padding:24px 16px 60px;
+    overflow-x:hidden;
+  }
+  .petal{position:fixed;top:-20px;width:14px;height:10px;background:var(--sakura);
+    border-radius:14px 0 14px 0;opacity:.8;animation:fall linear infinite;pointer-events:none;z-index:0}
+  @keyframes fall{to{transform:translateY(110vh) rotate(540deg) translateX(80px)}}
 
-* { box-sizing: border-box; }
+  header{text-align:center;z-index:1}
+  header img{width:150px;height:150px;border-radius:50%;background:#fff;
+    box-shadow:0 6px 25px rgba(20,48,110,.25);border:3px solid var(--gold)}
+  h1{font-family:'Cinzel',serif;font-size:2.3rem;color:var(--navy);margin-top:14px;letter-spacing:2px}
+  .jp{color:var(--red);font-size:1rem;letter-spacing:6px}
+  .divider{width:180px;height:4px;margin:12px auto;
+    background:linear-gradient(90deg,#009246 33%,#fff 33% 66%,var(--red) 66%);border-radius:2px}
 
-body {
-  margin: 0;
-  padding: 24px 16px;
-  background: var(--cream);
-  color: var(--navy);
-  font-family: Georgia, serif;
-  text-align: center;
-}
+  .panel{z-index:1;background:#fff;border:2px solid var(--navy);border-radius:18px;
+    padding:28px 24px;max-width:420px;width:100%;margin-top:20px;
+    box-shadow:0 10px 30px rgba(11,29,71,.15);position:relative}
+  .panel::before{content:"";position:absolute;inset:6px;border:1px solid var(--gold);border-radius:13px;pointer-events:none}
+  label{display:block;font-weight:700;margin:12px 0 6px;color:var(--navy)}
+  input{width:100%;padding:12px 14px;font-size:1rem;border:2px solid #cfd7ea;border-radius:10px;font-family:inherit}
+  input:focus{outline:none;border-color:var(--red)}
+  button{margin-top:20px;width:100%;padding:14px;font-size:1.1rem;font-family:'Cinzel',serif;
+    font-weight:700;letter-spacing:1px;color:#fff;background:var(--red);border:none;border-radius:10px;
+    cursor:pointer;box-shadow:0 4px 0 #8a0b20;transition:transform .1s}
+  button:active{transform:translateY(3px);box-shadow:0 1px 0 #8a0b20}
+  .hint{font-size:.85rem;color:#5b6a8f;margin-top:10px;text-align:center}
+  .error{color:var(--red);font-size:.9rem;margin-top:8px;min-height:1em;text-align:center}
 
-.container {
-  max-width: 480px;
-  margin: auto;
-}
+  /* Flip card */
+  .card-wrap{perspective:1200px;width:100%;max-width:380px;margin-top:24px;z-index:1;display:none}
+  .card{position:relative;width:100%;height:560px;transform-style:preserve-3d;transition:transform 1s cubic-bezier(.4,.2,.2,1)}
+  .card.flipped{transform:rotateY(180deg)}
+  .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:20px;overflow:hidden;
+    box-shadow:0 15px 40px rgba(11,29,71,.3)}
+  .back{background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;
+    border:6px solid var(--gold);cursor:pointer;color:#fff;text-align:center;
+    background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.05) 0 10px,transparent 10px 20px)}
+  .back img{width:140px;height:140px;border-radius:50%;background:#fff;border:3px solid var(--gold)}
+  .back p{font-family:'Cinzel',serif;margin-top:20px;font-size:1.2rem;letter-spacing:2px}
+  .back small{margin-top:8px;opacity:.8;animation:pulse 1.5s infinite}
+  @keyframes pulse{50%{opacity:.3}}
+  .front{transform:rotateY(180deg);background:#fff;border:6px solid var(--navy);padding:18px;
+    display:flex;flex-direction:column}
+  .front .name{font-family:'Cinzel',serif;text-align:center;font-size:1.5rem;color:var(--navy)}
+  .front .num{text-align:center;color:var(--red);font-size:.85rem;letter-spacing:2px}
+  .round{flex:1;display:flex;align-items:center;gap:14px;margin-top:12px;padding:10px 14px;
+    border-radius:14px;background:var(--paper);border-left:6px solid var(--red)}
+  .round:nth-child(4){border-left-color:var(--gold)}
+  .round:nth-child(5){border-left-color:var(--navy)}
+  .round .emoji{font-size:3.2rem;width:70px;text-align:center}
+  .round .rlabel{font-size:.8rem;color:#5b6a8f;letter-spacing:2px;text-transform:uppercase}
+  .round .sym{font-size:1.3rem;font-weight:700;color:var(--navy)}
+  .instructions{font-size:.8rem;text-align:center;color:#5b6a8f;margin-top:10px}
+  .reset{background:none;color:var(--navy);box-shadow:none;font-size:.85rem;text-decoration:underline;margin-top:12px}
 
-.logo {
-  width: 105px;
-  height: 105px;
-  margin: 0 auto 18px;
-  border: 3px double var(--navy);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 30px;
-  font-weight: bold;
-  position: relative;
-}
-
-.logo::after {
-  content: "✿";
-  position: absolute;
-  top: 4px;
-  right: 7px;
-  font-size: 21px;
-  color: var(--red);
-}
-
-.eyebrow {
-  font: 11px Arial, sans-serif;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-}
-
-h1 {
-  font-size: 37px;
-  margin: 12px 0;
-}
-
-.subtitle {
-  font: 14px/1.7 Arial, sans-serif;
-  color: #526579;
-}
-
-.tricolour {
-  height: 4px;
-  max-width: 180px;
-  margin: 20px auto;
-  background: linear-gradient(
-    to right,
-    var(--green) 0 33%,
-    white 33% 66%,
-    var(--red) 66%
-  );
-}
-
-.panel {
-  background: #fffdf8;
-  border: 1px solid #ddd5c7;
-  border-radius: 20px;
-  padding: 24px 20px;
-  box-shadow: 0 8px 25px #123b6810;
-}
-
-label {
-  display: block;
-  text-align: left;
-  font: bold 13px Arial, sans-serif;
-  margin-bottom: 8px;
-}
-
-input {
-  width: 100%;
-  padding: 14px;
-  border: 1px solid #b8c4d0;
-  border-radius: 10px;
-  font-size: 16px;
-  background: white;
-}
-
-button {
-  width: 100%;
-  margin-top: 14px;
-  padding: 15px;
-  background: var(--navy);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font: bold 14px Arial, sans-serif;
-  cursor: pointer;
-}
-
-button:disabled {
-  opacity: 0.6;
-  cursor: wait;
-}
-
-.hidden { display: none !important; }
-
-.card {
-  background: #fffdf8;
-  border: 2px solid var(--navy);
-  border-radius: 18px;
-  padding: 24px 12px;
-  margin-top: 20px;
-}
-
-.card-title {
-  font: bold 11px Arial, sans-serif;
-  letter-spacing: 2px;
-}
-
-.symbols {
-  display: flex;
-  justify-content: center;
-  gap: 9px;
-  margin: 24px 0;
-}
-
-.symbol {
-  width: 85px;
-  height: 85px;
-  background: #f6f2e8;
-  border: 1px solid #d5d9dd;
-  border-radius: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 38px;
-}
-
-.rounds {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.round {
-  background: white;
-  border: 1px solid #ddd5c7;
-  border-radius: 12px;
-  padding: 12px 4px;
-}
-
-.round b {
-  display: block;
-  font: bold 10px Arial, sans-serif;
-  margin-bottom: 8px;
-}
-
-.round span { font-size: 27px; }
-
-.instructions {
-  margin-top: 18px;
-  padding: 14px;
-  background: #f1ebdc;
-  border-left: 3px solid var(--gold);
-  border-radius: 8px;
-  font: 13px/1.7 Arial, sans-serif;
-  text-align: left;
-}
-
-.status {
-  margin-top: 14px;
-  font: 13px/1.6 Arial, sans-serif;
-}
-
-footer {
-  margin-top: 25px;
-  font: 11px Arial, sans-serif;
-  color: #718092;
-}
-
-@media (max-width: 360px) {
-  h1 { font-size: 31px; }
-  .symbol { width: 75px; height: 75px; }
-  .symbols { gap: 6px; }
-}
+  /* Host view */
+  .host{z-index:1;width:100%;max-width:900px;margin-top:20px;background:#fff;border-radius:14px;
+    padding:20px;border:2px solid var(--navy);display:none}
+  table{width:100%;border-collapse:collapse;font-size:.95rem}
+  th,td{padding:8px;border-bottom:1px solid #e3e8f3;text-align:left}
+  th{background:var(--navy);color:#fff}
+  footer{margin-top:40px;font-size:.8rem;color:#5b6a8f;z-index:1;text-align:center}
 </style>
 </head>
-
 <body>
-<div class="container">
 
-  <div class="logo">ACA</div>
+<header>
+  <img src="logo.png" alt="Asian Cultural Association logo">
+  <h1>Speed Friending</h1>
+  <div class="jp">友 · 朋 · 缘</div>
+  <div class="divider"></div>
+</header>
 
-  <div class="eyebrow">
-    Asian Cultural Association
-  </div>
-
-  <h1>Speed Friending 🌸</h1>
-
-  <div class="subtitle">
-    Three rounds. Three minutes.<br>
-    New connections.
-  </div>
-
-  <div class="tricolour"></div>
-
-  <section class="panel" id="entry">
-    <p>Ready to meet your ACA community?</p>
-
-    <form id="registrationForm">
-      <label for="name">Your name</label>
-
-      <input
-        id="name"
-        name="name"
-        type="text"
-        maxlength="50"
-        placeholder="Enter your name"
-        autocomplete="name"
-        required
-      >
-
-      <button id="submitButton" type="submit">
-        Reveal My Card ✨
-      </button>
-    </form>
-
-    <p id="error" class="status" role="status" aria-live="polite"></p>
-  </section>
-
-  <section id="result" class="hidden">
-
-    <div class="card">
-      <div class="card-title">
-        YOUR CONVERSATION CARD
-      </div>
-
-      <h2 id="personName"></h2>
-
-      <div class="symbols" id="symbols"></div>
-
-      <div class="subtitle">
-        Remember your three symbols!
-      </div>
-    </div>
-
-    <div class="rounds" id="rounds"></div>
-
-    <div class="instructions">
-      <b>How to play</b><br><br>
-      🌸 Round 1: Find everyone sharing your first symbol.<br>
-      🏮 Round 2: Find everyone sharing your second symbol.<br>
-      ☁️ Round 3: Find everyone sharing your third symbol.<br><br>
-      Talk for 3 minutes per round and move when the host announces the switch.
-    </div>
-
-    <button type="button" onclick="window.print()">
-      Print My Card
-    </button>
-
-    <p class="subtitle">
-      Keep this card open during the event.
-    </p>
-
-  </section>
-
-  <footer>
-    ACA · Università Cattolica del Sacro Cuore
-  </footer>
-
+<!-- Entry form -->
+<div class="panel" id="formPanel">
+  <label for="name">Your name</label>
+  <input id="name" placeholder="e.g. Giulia" autocomplete="off">
+  <label for="number">Your guest number</label>
+  <input id="number" type="number" inputmode="numeric" placeholder="Number on your ticket">
+  <div class="error" id="error"></div>
+  <button onclick="createCard()">Reveal my card 🏮</button>
+  <p class="hint">Find people with the same symbol in each round. You'll never meet the same person twice!</p>
 </div>
 
-<script>
-/*
- * ACA SPEED FRIENDING
- * Google Apps Script connection
- */
-const GOOGLE_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbz-RRVOxlYwsNar17uT-hx09LIJaCAhy_-F7sBSooPF3WsL1sPotAVenbXGShvJrjEFFw/exec";
+<!-- Card -->
+<div class="card-wrap" id="cardWrap">
+  <div class="card" id="card">
+    <div class="face back" onclick="flip()">
+      <img src="logo.png" alt="ACA logo">
+      <p>Your Destiny Awaits</p>
+      <small>Tap to reveal</small>
+    </div>
+    <div class="face front" id="front"></div>
+  </div>
+  <button class="reset" onclick="resetCard()">Not you? Start over</button>
+</div>
 
-const SYMBOL_POOL = [
-  "🌸", "🏮", "☁️", "🌙", "⭐",
-  "🍀", "🦋", "🌻", "🍓", "🌊",
-  "🌈", "🍒", "🐚", "🌷", "✨"
+<!-- Host -->
+<div class="host" id="hostPanel">
+  <h2 style="font-family:Cinzel;color:var(--navy);margin-bottom:10px">Host view: all cards</h2>
+  <div id="hostTable"></div>
+</div>
+
+<footer>Asian Cultural Association · Università Cattolica del Sacro Cuore</footer>
+
+<script>
+/* ========= SETTINGS ========= */
+const MAX_GUESTS = 49;   // change to your expected number of guests
+
+/* Symbol sets: one per round (11 each, supports up to 121 guests) */
+const ROUNDS = [
+  { title:"Round 1", set:[
+    ["🐉","Dragon"],["🐼","Panda"],["🐯","Tiger"],["🐒","Monkey"],["🐍","Snake"],["🐓","Rooster"],
+    ["🐇","Rabbit"],["🐟","Koi"],["🦢","Crane"],["🐢","Turtle"],["🦋","Butterfly"] ]},
+  { title:"Round 2", set:[
+    ["🌸","Sakura"],["🎋","Bamboo"],["🍁","Maple"],["🌙","Moon"],["☀️","Sun"],["🌊","Wave"],
+    ["🗻","Mountain"],["🪷","Lotus"],["🍃","Leaf"],["⭐","Star"],["🔥","Fire"] ]},
+  { title:"Round 3", set:[
+    ["🏮","Lantern"],["🎐","Wind Chime"],["🍵","Tea"],["🥢","Chopsticks"],["🪭","Fan"],["🎎","Dolls"],
+    ["🧧","Red Envelope"],["🍜","Ramen"],["🎴","Flower Card"],["🪁","Kite"],["🔔","Bell"] ]}
 ];
 
-const form = document.getElementById("registrationForm");
-const nameInput = document.getElementById("name");
-const errorMessage = document.getElementById("error");
-const submitButton = document.getElementById("submitButton");
+/* ========= NO-REPEAT MATHS =========
+   p = smallest prime with p*p >= MAX_GUESTS.
+   Guest i -> (a,b). Round1 = a, Round2 = b, Round3 = (a+b) mod p.
+   Two different guests can share a symbol in AT MOST ONE round,
+   so nobody is matched with the same person twice. */
+function isPrime(n){ if(n<2)return false; for(let i=2;i*i<=n;i++) if(n%i===0) return false; return true; }
+let P = 2; while(P*P < MAX_GUESTS || !isPrime(P)) P++;
+if (P > 11) alert("Too many guests for the symbol sets: add more symbols or lower MAX_GUESTS.");
 
-function createCardId() {
-  if (window.crypto && window.crypto.randomUUID) {
-    return "ACA-" + window.crypto.randomUUID();
-  }
-
-  return "ACA-" + Date.now() + "-" +
-    Math.random().toString(36).slice(2, 12);
+function symbolsFor(num){
+  const i = num - 1;
+  const a = i % P, b = Math.floor(i / P);
+  return [ ROUNDS[0].set[a], ROUNDS[1].set[b], ROUNDS[2].set[(a+b) % P] ];
 }
 
-function chooseSymbols() {
-  const available = [...SYMBOL_POOL];
-  const chosen = [];
+/* ========= UI ========= */
+const $ = id => document.getElementById(id);
 
-  for (let i = 0; i < 3; i++) {
-    const index = Math.floor(Math.random() * available.length);
-    chosen.push(available.splice(index, 1)[0]);
+function createCard(){
+  const name = $("name").value.trim();
+  const num = parseInt($("number").value, 10);
+  if(!name){ $("error").textContent = "Please enter your name."; return; }
+  if(!num || num < 1 || num > MAX_GUESTS){
+    $("error").textContent = `Guest number must be between 1 and ${MAX_GUESTS}.`; return;
   }
-
-  return chosen;
+  localStorage.setItem("sf_card", JSON.stringify({name, num}));
+  showCard(name, num, false);
 }
 
-function displayCard(name, symbols) {
-  document.getElementById("personName").textContent = name;
-
-  document.getElementById("symbols").innerHTML =
-    symbols.map(symbol =>
-      `<div class="symbol">${symbol}</div>`
-    ).join("");
-
-  document.getElementById("rounds").innerHTML =
-    symbols.map((symbol, index) => `
+function showCard(name, num, alreadyFlipped){
+  const syms = symbolsFor(num);
+  $("front").innerHTML = `
+    <div class="name">${escapeHTML(name)}</div>
+    <div class="num">GUEST Nº ${num}</div>
+    ${syms.map((s,k)=>`
       <div class="round">
-        <b>ROUND ${index + 1}</b>
-        <span>${symbol}</span>
-      </div>
-    `).join("");
-
-  document.getElementById("entry").classList.add("hidden");
-  document.getElementById("result").classList.remove("hidden");
-
-  window.scrollTo({ top: 0, behavior: "smooth" });
+        <div class="emoji">${s[0]}</div>
+        <div><div class="rlabel">${ROUNDS[k].title}</div><div class="sym">${s[1]}</div></div>
+      </div>`).join("")}
+    <div class="instructions">Each round, find someone with the same symbol and say hello! 👋</div>`;
+  $("formPanel").style.display = "none";
+  $("cardWrap").style.display = "block";
+  if(alreadyFlipped) $("card").classList.add("flipped");
 }
 
-form.addEventListener("submit", async function(event) {
-  event.preventDefault();
+function flip(){ $("card").classList.add("flipped"); }
 
-  const name = nameInput.value.trim();
+function resetCard(){
+  if(!confirm("Clear this card and start over?")) return;
+  localStorage.removeItem("sf_card");
+  location.reload();
+}
 
-  if (!name) {
-    errorMessage.textContent = "Please enter your name first.";
-    return;
+function escapeHTML(s){ return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* Host view: add ?host to the URL */
+function showHost(){
+  $("formPanel").style.display = "none";
+  $("hostPanel").style.display = "block";
+  let html = "<table><tr><th>Guest Nº</th>" + ROUNDS.map(r=>`<th>${r.title}</th>`).join("") + "</tr>";
+  for(let n=1; n<=MAX_GUESTS; n++){
+    html += `<tr><td>${n}</td>` + symbolsFor(n).map(s=>`<td>${s[0]} ${s[1]}</td>`).join("") + "</tr>";
   }
+  $("hostTable").innerHTML = html + "</table>";
+}
 
-  submitButton.disabled = true;
-  submitButton.textContent = "Creating your card...";
-  errorMessage.textContent = "Registering your name...";
+/* Falling sakura petals */
+for(let i=0;i<14;i++){
+  const p = document.createElement("div");
+  p.className = "petal";
+  p.style.left = Math.random()*100 + "vw";
+  p.style.animationDuration = 6 + Math.random()*8 + "s";
+  p.style.animationDelay = Math.random()*10 + "s";
+  document.body.appendChild(p);
+}
 
-  const cardId = createCardId();
-  const symbols = chooseSymbols();
-
-  /*
-   * Apps Script receives a form-encoded POST.
-   * no-cors means the browser cannot read Google's response.
-   * Therefore, this page cannot confirm whether the row was saved.
-   */
-  try {
-    await fetch(GOOGLE_SCRIPT_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
-      },
-      body: new URLSearchParams({
-        name: name,
-        cardId: cardId
-      }).toString()
-    });
-
-    errorMessage.textContent = "";
-    displayCard(name, symbols);
-
-  } catch (error) {
-    console.error("Registration request failed:", error);
-
-    errorMessage.textContent =
-      "We couldn't send your registration. Please check your connection and try again.";
-
-    submitButton.disabled = false;
-    submitButton.textContent = "Reveal My Card ✨";
-  }
-});
+/* Start */
+if (new URLSearchParams(location.search).has("host")) showHost();
+else {
+  const saved = JSON.parse(localStorage.getItem("sf_card") || "null");
+  if(saved) showCard(saved.name, saved.num, true);
+}
 </script>
-
 </body>
 </html>
