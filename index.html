@@ -117,9 +117,12 @@ button {
   cursor: pointer;
 }
 
-button:active { opacity: 0.8; }
+button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
 
-.hidden { display: none; }
+.hidden { display: none !important; }
 
 .card {
   background: #fffdf8;
@@ -185,10 +188,21 @@ button:active { opacity: 0.8; }
   text-align: left;
 }
 
+.status {
+  margin-top: 14px;
+  font: 13px/1.6 Arial, sans-serif;
+}
+
 footer {
   margin-top: 25px;
   font: 11px Arial, sans-serif;
   color: #718092;
+}
+
+@media (max-width: 360px) {
+  h1 { font-size: 31px; }
+  .symbol { width: 75px; height: 75px; }
+  .symbols { gap: 6px; }
 }
 </style>
 </head>
@@ -214,19 +228,25 @@ footer {
   <section class="panel" id="entry">
     <p>Ready to meet your ACA community?</p>
 
-    <label for="name">Your name</label>
-    <input
-      id="name"
-      type="text"
-      maxlength="50"
-      placeholder="Enter your name"
-    >
+    <form id="registrationForm">
+      <label for="name">Your name</label>
 
-    <button onclick="revealCard()">
-      Reveal My Card ✨
-    </button>
+      <input
+        id="name"
+        name="name"
+        type="text"
+        maxlength="50"
+        placeholder="Enter your name"
+        autocomplete="name"
+        required
+      >
 
-    <p id="error" class="subtitle"></p>
+      <button id="submitButton" type="submit">
+        Reveal My Card ✨
+      </button>
+    </form>
+
+    <p id="error" class="status" role="status" aria-live="polite"></p>
   </section>
 
   <section id="result" class="hidden">
@@ -241,7 +261,7 @@ footer {
       <div class="symbols" id="symbols"></div>
 
       <div class="subtitle">
-        Use one symbol for each round.
+        Remember your three symbols!
       </div>
     </div>
 
@@ -255,6 +275,14 @@ footer {
       Talk for 3 minutes per round and move when the host announces the switch.
     </div>
 
+    <button type="button" onclick="window.print()">
+      Print My Card
+    </button>
+
+    <p class="subtitle">
+      Keep this card open during the event.
+    </p>
+
   </section>
 
   <footer>
@@ -264,10 +292,115 @@ footer {
 </div>
 
 <script>
-function revealCard() {
-  document.getElementById("error").textContent =
-    "The card assignment system still needs to be connected. Please wait for the host to activate the cards.";
+/*
+ * ACA SPEED FRIENDING
+ * Google Apps Script connection
+ */
+const GOOGLE_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbz-RRVOxlYwsNar17uT-hx09LIJaCAhy_-F7sBSooPF3WsL1sPotAVenbXGShvJrjEFFw/exec";
+
+const SYMBOL_POOL = [
+  "🌸", "🏮", "☁️", "🌙", "⭐",
+  "🍀", "🦋", "🌻", "🍓", "🌊",
+  "🌈", "🍒", "🐚", "🌷", "✨"
+];
+
+const form = document.getElementById("registrationForm");
+const nameInput = document.getElementById("name");
+const errorMessage = document.getElementById("error");
+const submitButton = document.getElementById("submitButton");
+
+function createCardId() {
+  if (window.crypto && window.crypto.randomUUID) {
+    return "ACA-" + window.crypto.randomUUID();
+  }
+
+  return "ACA-" + Date.now() + "-" +
+    Math.random().toString(36).slice(2, 12);
 }
+
+function chooseSymbols() {
+  const available = [...SYMBOL_POOL];
+  const chosen = [];
+
+  for (let i = 0; i < 3; i++) {
+    const index = Math.floor(Math.random() * available.length);
+    chosen.push(available.splice(index, 1)[0]);
+  }
+
+  return chosen;
+}
+
+function displayCard(name, symbols) {
+  document.getElementById("personName").textContent = name;
+
+  document.getElementById("symbols").innerHTML =
+    symbols.map(symbol =>
+      `<div class="symbol">${symbol}</div>`
+    ).join("");
+
+  document.getElementById("rounds").innerHTML =
+    symbols.map((symbol, index) => `
+      <div class="round">
+        <b>ROUND ${index + 1}</b>
+        <span>${symbol}</span>
+      </div>
+    `).join("");
+
+  document.getElementById("entry").classList.add("hidden");
+  document.getElementById("result").classList.remove("hidden");
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+form.addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  const name = nameInput.value.trim();
+
+  if (!name) {
+    errorMessage.textContent = "Please enter your name first.";
+    return;
+  }
+
+  submitButton.disabled = true;
+  submitButton.textContent = "Creating your card...";
+  errorMessage.textContent = "Registering your name...";
+
+  const cardId = createCardId();
+  const symbols = chooseSymbols();
+
+  /*
+   * Apps Script receives a form-encoded POST.
+   * no-cors means the browser cannot read Google's response.
+   * Therefore, this page cannot confirm whether the row was saved.
+   */
+  try {
+    await fetch(GOOGLE_SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+      },
+      body: new URLSearchParams({
+        name: name,
+        cardId: cardId
+      }).toString()
+    });
+
+    errorMessage.textContent = "";
+    displayCard(name, symbols);
+
+  } catch (error) {
+    console.error("Registration request failed:", error);
+
+    errorMessage.textContent =
+      "We couldn't send your registration. Please check your connection and try again.";
+
+    submitButton.disabled = false;
+    submitButton.textContent = "Reveal My Card ✨";
+  }
+});
 </script>
 
 </body>
