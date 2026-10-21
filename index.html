@@ -126,28 +126,42 @@
 
 <script>
 /* ========= SETTINGS ========= */
-const MAX_GUESTS = 60;   // Adjust this to your actual maximum expected attendance
+const MAX_GUESTS = 60;   // Supports up to 60 guests (20 trios)
 
-/* Symbol pool (expandable if you have more guests) */
+/* Exactly 20 Unique Emojis for your Room Map Stations */
 const SYMBOLS = [
-  ["🐉","Dragon"],["🐼","Panda"],["🐯","Tiger"],["🐒","Monkey"],["🐍","Snake"],["🐓","Rooster"],
-  ["🐇","Rabbit"],["🐟","Koi"],["🦢","Crane"],["🐢","Turtle"],["🦋","Butterfly"],
-  ["🌸","Sakura"],["🎋","Bamboo"],["🍁","Maple"],["🌙","Moon"],["☀️","Sun"],["🌊","Wave"],
-  ["🗻","Mountain"],["🪷","Lotus"],["🍃","Leaf"],["⭐","Star"],["🔥","Fire"],
-  ["🏮","Lantern"],["🎐","Wind Chime"],["🍵","Tea"],["🥢","Chopsticks"],["🪭","Fan"],["🎎","Dolls"],
-  ["🧧","Red Envelope"],["🍜","Ramen"],["🎴","Flower Card"],["🪁","Kite"],["🔔","Bell"]
+  ["🐉","Dragon"],     // 1
+  ["🐼","Panda"],      // 2
+  ["🐯","Tiger"],      // 3
+  ["🐒","Monkey"],     // 4
+  ["🐍","Snake"],      // 5
+  ["🌸","Sakura"],     // 6
+  ["🎋","Bamboo"],     // 7
+  ["🍁","Maple"],      // 8
+  ["🌙","Moon"],       // 9
+  ["☀️","Sun"],        // 10
+  ["🏮","Lantern"],    // 11
+  ["🎐","Wind Chime"], // 12
+  ["🍵","Tea"],        // 13
+  ["🥢","Chopsticks"], // 14
+  ["🪭","Fan"],        // 15
+  ["🐟","Koi"],        // 16
+  ["🦢","Crane"],      // 17
+  ["🐢","Turtle"],     // 18
+  ["⭐","Star"],       // 19
+  ["🍜","Ramen"]       // 20
 ];
 
-/* ========= STRICT TRIO-CAP MATHS (Max 3 people per symbol per round) ========= */
+/* ========= 20-EMOJI TRIO ASSIGNMENT (Max 3 people per symbol) ========= */
 function symbolsFor(num){
   const i = num - 1;
-  const tableIdx = Math.floor(i / 3); // Which trio table block (0, 1, 2...)
+  const tableIdx = Math.floor(i / 3); // Which trio group (0 to 19)
   const posInTrio = i % 3;          // 0, 1, or 2 within the trio
 
-  // Pick 3 distinct symbols from our pool for this trio block across the 3 rounds
-  const s1 = SYMBOLS[(tableIdx * 3) % SYMBOLS.length];
-  const s2 = SYMBOLS[(tableIdx * 3 + 1 + posInTrio) % SYMBOLS.length];
-  const s3 = SYMBOLS[(tableIdx * 3 + 2 + (posInTrio * 2)) % SYMBOLS.length];
+  // Map across the 20 symbols pool ensuring zero repeat pairings
+  const s1 = SYMBOLS[tableIdx % 20];
+  const s2 = SYMBOLS[(tableIdx + 7 + posInTrio) % 20];
+  const s3 = SYMBOLS[(tableIdx + 13 + (posInTrio * 2)) % 20];
 
   return [
     { title: "Round 1", ...s1 },
