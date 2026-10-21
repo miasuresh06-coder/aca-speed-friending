@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Speed Friending · ACA Cattolica</title>
-<link href="[fonts.googleapis.com](https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Serif+JP:wght@400;700&display=swap)" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --navy:#14306e; --navy-dark:#0b1d47; --red:#c8102e; --gold:#d4a72c;
@@ -31,8 +31,7 @@
   header img{width:150px;height:150px;border-radius:50%;background:#fff;
     box-shadow:0 6px 25px rgba(20,48,110,.25);border:3px solid var(--gold)}
   h1{font-family:'Cinzel',serif;font-size:2.3rem;color:var(--navy);margin-top:14px;letter-spacing:2px}
-  .jp{color:var(--red);font-size:1rem;letter-spacing:6px}
-  .divider{width:180px;height:4px;margin:12px auto;
+  .divider{width:180px;height:4px;margin:16px auto 12px;
     background:linear-gradient(90deg,#009246 33%,#fff 33% 66%,var(--red) 66%);border-radius:2px}
 
   .panel{z-index:1;background:#fff;border:2px solid var(--navy);border-radius:18px;
@@ -101,7 +100,7 @@
   <input id="number" type="number" inputmode="numeric" placeholder="Number on your ticket">
   <div class="error" id="error"></div>
   <button onclick="createCard()">Reveal my card 🏮</button>
-  <p class="hint">Find people with the same symbol in each round. You'll never meet the same person twice!</p>
+  <p class="hint">Find your 2 fellow symbol-mates to form a trio in each round. You'll never meet the same person twice!</p>
 </div>
 
 <!-- Card -->
@@ -127,9 +126,9 @@
 
 <script>
 /* ========= SETTINGS ========= */
-const MAX_GUESTS = 70;   // change to your expected number of guests
+const MAX_GUESTS = 33;   // 11 symbols × 3 people per trio
 
-/* Symbol sets: one per round (11 each, supports up to 121 guests) */
+/* Symbol sets: 11 symbols per round */
 const ROUNDS = [
   { title:"Round 1", set:[
     ["🐉","Dragon"],["🐼","Panda"],["🐯","Tiger"],["🐒","Monkey"],["🐍","Snake"],["🐓","Rooster"],
@@ -142,19 +141,18 @@ const ROUNDS = [
     ["🧧","Red Envelope"],["🍜","Ramen"],["🎴","Flower Card"],["🪁","Kite"],["🔔","Bell"] ]}
 ];
 
-/* ========= NO-REPEAT MATHS =========
-   p = smallest prime with p*p >= MAX_GUESTS.
-   Guest i -> (a,b). Round1 = a, Round2 = b, Round3 = (a+b) mod p.
-   Two different guests can share a symbol in AT MOST ONE round,
-   so nobody is matched with the same person twice. */
-function isPrime(n){ if(n<2)return false; for(let i=2;i*i<=n;i++) if(n%i===0) return false; return true; }
-let P = 2; while(P*P < MAX_GUESTS || !isPrime(P)) P++;
-if (P > 11) alert("Too many guests for the symbol sets: add more symbols or lower MAX_GUESTS.");
+/* ========= TRIO MATHS (3 people per symbol, zero repeat across 3 rounds) ========= */
+const P = 11; // Prime equal to symbol count
 
 function symbolsFor(num){
   const i = num - 1;
-  const a = i % P, b = Math.floor(i / P);
-  return [ ROUNDS[0].set[a], ROUNDS[1].set[b], ROUNDS[2].set[(a+b) % P] ];
+  const a = i % P;
+  const v = Math.floor(i / P); // 0, 1, or 2 (trio member)
+  return [
+    ROUNDS[0].set[a],
+    ROUNDS[1].set[(a + v) % P],
+    ROUNDS[2].set[(a + 2 * v) % P]
+  ];
 }
 
 /* ========= UI ========= */
@@ -181,7 +179,7 @@ function showCard(name, num, alreadyFlipped){
         <div class="emoji">${s[0]}</div>
         <div><div class="rlabel">${ROUNDS[k].title}</div><div class="sym">${s[1]}</div></div>
       </div>`).join("")}
-    <div class="instructions">Each round, find someone with the same symbol and say hello! 👋</div>`;
+    <div class="instructions">Each round, find the 2 other people with this symbol to form a trio of 3! 👋</div>`;
   $("formPanel").style.display = "none";
   $("cardWrap").style.display = "block";
   if(alreadyFlipped) $("card").classList.add("flipped");
